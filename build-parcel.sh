@@ -45,8 +45,8 @@ cd ..
 
 for file in `ls $PARCEL_NAME/meta/**`
 do
-  sed -i "" "s/<VERSION-FULL>/$FULL_VERSION/g"     $file
-  sed -i "" "s/<VERSION-SHORT>/${SHORT_VERSION}/g" $file
+  sed -i -e "s/<VERSION-FULL>/$FULL_VERSION/g"     $file
+  sed -i -e "s/<VERSION-SHORT>/${SHORT_VERSION}/g" $file
 done
 
 # validate directory
