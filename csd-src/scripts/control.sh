@@ -25,6 +25,8 @@ export NIFI_DEFAULT_HOME=/opt/cloudera/parcels/NIFI
 NIFI_HOME=${NIFI_HOME:-$CDH_NIFI_HOME}
 export NIFI_HOME=${NIFI_HOME:-$NIFI_DEFAULT_HOME}
 
+export LIB_DIR=${NIFI_HOME}/lib
+
 PROGNAME=`basename "$0"`
 
 warn() {
@@ -89,14 +91,18 @@ locateJava() {
 
 init() {
     # Unlimit the number of file descriptors if possible
-    unlimitFD
+#    unlimitFD
 
     # Locate the Java VM to execute
-    locateJava
+#    locateJava
+
+    # Replace nifi.zookeeper.connect.string placeholder
+    perl -pi -e "s#\#nifi.zookeeper.connect.string={{QUORUM}}#nifi.zookeeper.connect.string=${QUORUM}#" $CONF_DIR/nifi.properties
+
 }
 
 run() {
-    BOOTSTRAP_CONF="$NIFI_HOME/conf/bootstrap.conf";
+    BOOTSTRAP_CONF="${CONF_DIR}/aux/bootstrap.conf";
     echo
     echo "Java home: $JAVA_HOME"
     echo "NiFi home: $NIFI_HOME"
@@ -104,7 +110,7 @@ run() {
     echo "Bootstrap Config File: $BOOTSTRAP_CONF"
     echo
 
-    exec "$JAVA" -cp "$NIFI_HOME"/conf/:"$NIFI_HOME"/lib/bootstrap/* -Xms12m -Xmx24m -Dorg.apache.nifi.bootstrap.config.file="$BOOTSTRAP_CONF" org.apache.nifi.bootstrap.RunNiFi $@
+    exec "$JAVA" -cp "${CONF_DIR}":"$NIFI_HOME"/lib/bootstrap/* -Xms12m -Xmx24m -Dorg.apache.nifi.bootstrap.config.file="$BOOTSTRAP_CONF" org.apache.nifi.bootstrap.RunNiFi $@
 }
 
 main() {
