@@ -3,6 +3,12 @@ NiFi Parcel
 
 This repository provides a parcel(https://github.com/cloudera/cm_ext) to install Apache NiFi as a service usable by Cloudera Manager.
 
+# Overview
+0. `cloudera/cm_ext`
+1. Create parcel
+2. Publish parcel
+3. Publish CSD
+
 # Install Steps
 0. Install Prerequisites: `cloudera/cm_ext`
 ```sh
