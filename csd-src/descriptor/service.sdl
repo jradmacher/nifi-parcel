@@ -48,6 +48,69 @@
       "configurableInWizard": true
     },
     {
+      "name": "nifi.nar.working.directory",
+      "label": "nar work directory",
+      "description": "The location of the nar working directory.",
+      "type": "string",
+      "default": "/var/lib/nifi/work/nar/"
+    },
+    {
+      "name": "nifi.documentation.working.directory",
+      "label": "documentation work directory",
+      "description": "The documentation working directory.",
+      "type": "string",
+      "default": "/var/lib/nifi/work/docs/components"
+    },
+    {
+      "name": "nifi.flow.configuration.file",
+      "label": "flow configuration xml",
+      "description": "The location of the flow configuration file (i.e., the file that contains what is currently displayed on the NiFi graph)",
+      "type": "string",
+      "default": "/var/lib/nifi/flow.xml.gz"
+    },
+    {
+      "name": "nifi.flow.configuration.archive.dir",
+      "label": "flow configuration archive",
+      "description": "The location of the archive directory where backup copies of the flow.xml are saved.",
+      "type": "string",
+      "default": "/var/lib/nifi/archive/"
+    },
+    {
+      "name": "nifi.web.http.host",
+      "label": "web hostname",
+      "description": "The HTTP host. It is blank by default.",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "name": "nifi.web.http.port",
+      "label": "web http port",
+      "description": "The HTTP port. The default value is 8080.",
+      "type": "port",
+      "default": "8580"
+    },
+
+    {
+      "name": "nifi.database.directory",
+      "label": "nifi.database.directory",
+      "description": "TODO nifi.database.directory",
+      "type": "path",
+      "pathType": "localDataDir",
+      "mode": "0755",
+      "default": "/var/lib/nifi/database_repository"
+    },
+
+    {
+      "name": "nifi.flowfile.repository.directory",
+      "label": "nifi.flowfile.repository.directory",
+      "description": "TODO nifi.database.directory",
+      "type": "path",
+      "pathType": "localDataDir",
+      "mode": "0755",
+      "default": "/var/lib/nifi/flowfile_repository"
+    },
+
+    {
       "name": "num.partitions",
       "label": "Default Number of Partitions",
       "description": "The default number of partitions for automatically created topics.",
@@ -79,12 +142,12 @@
      "externalLink" : {
        "name" : "nifi_web_ui",
        "label" : "NiFi Node Web UI",
-       "url" : "http://${host}:8080/nifi/"
+       "url" : "http://${host}:${nifi.web.http.host}/nifi/"
      },
     "configWriter": {
       "generators": [
         {
-            "filename": "nifi.properties",
+            "filename": "conf/nifi.properties",
             "configFormat": "properties",
             "excludedParams": [
             ],
@@ -94,10 +157,61 @@
                 "value" : "{{QUORUM}}"
               },
               {
+                "key" : "nifi.nar.library.directory",
+                "value" : "{{NIFI_LIB}}"
+              },
+              {
+                "key" : "nifi.web.war.directory",
+                "value" : "{{NIFI_LIB}}"
+              },
+              {
+                "key" : "nifi.state.management.provider.cluster",
+                "value" : "zk-provider"
+              },
+              {
+                "key" : "nifi.state.management.provider.local",
+                "value" : "local-provider"
+              },
+              {
                 "key" : "nifi.state.management.embedded.zookeeper.start",
                 "value" : "false"
+              },
+              {
+                "key": "nifi.flowfile.repository.implementation",
+                "value": "org.apache.nifi.controller.repository.WriteAheadFlowFileRepository"
+              },
+              {
+                "key": "nifi.flowfile.repository.wal.implementation",
+                "value": "org.apache.nifi.wali.SequentialAccessWriteAheadLog"
+              },
+              {
+                "key": "nifi.flowfile.repository.partitions",
+                "value": "256"
+              },
+              {
+                "key": "nifi.flowfile.repository.checkpoint.interval",
+                "value": "2 mins"
+              },
+              {
+                "key": "nifi.flowfile.repository.always.sync",
+                "value": "false"
+              },
+              {
+                "key": "nifi.sensitive.props.algorithm",
+                "value": "PBEWITHMD5AND256BITAES-CBC-OPENSSL"
+              },
+              {
+                "key": "nifi.sensitive.props.provider",
+                "value": "BC"
               }
+
             ]
+        }
+      ],
+      "auxConfigGenerators" : [
+        {
+          "filename" : "conf/logback.xml",
+          "sourceFilename" : "aux/logback.xml"
         }
        ]
     }

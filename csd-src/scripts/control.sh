@@ -26,9 +26,10 @@ NIFI_HOME=${NIFI_HOME:-$CDH_NIFI_HOME}
 export NIFI_HOME=${NIFI_HOME:-$NIFI_DEFAULT_HOME}
 
 export JAVA="${JAVA_HOME}/bin/java"
-export NIFI_CONF="${CONF_DIR}"
+export NIFI_CONF="${CONF_DIR}/conf"
 export BOOTSTRAP_CONF="${NIFI_CONF}/bootstrap.conf";
 export NIFI_PROPERTIES="${NIFI_CONF}/nifi.properties";
+export NIFI_LIB="${NIFI_HOME}/lib"
 
 PROGNAME=`basename "$0"`
 
@@ -96,9 +97,10 @@ update_config() {
 
     # Replace nifi.zookeeper.connect.string placeholder
     perl -pi -e "s#\#nifi.zookeeper.connect.string=\\{\\{QUORUM\\}\\}#nifi.zookeeper.connect.string=${ZK_QUORUM}#" $NIFI_PROPERTIES
+    perl -pi -e "s#\\{\\{NIFI_LIB\\}\\}#${NIFI_LIB}#" $NIFI_PROPERTIES
 
     #TEMP until this config is written by CDH
-    cp "${CONF_DIR}/aux/bootstrap.conf" "${NIFI_CONF}/bootstrap.conf"
+    cp "${CONF_DIR}/aux/bootstrap.conf" "$BOOTSTRAP_CONF"
 
     # replace placeholders with real values
     perl -pi -e "s#java=java#java=${JAVA}#" $BOOTSTRAP_CONF
@@ -107,11 +109,16 @@ update_config() {
 
 }
 
+create_dirs() {
+    test -d ${CONF_DIR}/lib || ln -s ${NIFI_HOME}/lib ${CONF_DIR}/lib
+}
+
 run() {
     echo
     echo "Java: ${JAVA}"
     echo "NiFi home directory: ${NIFI_HOME}"
     echo "Nifi conf directory: ${NIFI_CONF}"
+    echo "Nifi conf directory: ${NIFI_LIB}"
     echo
     echo "Bootstrap config file: ${BOOTSTRAP_CONF}"
     echo "NIFI properties file: ${NIFI_PROPERTIES}"
@@ -123,6 +130,7 @@ run() {
 }
 
 main() {
+    create_dirs
     update_config
     run "$@"
 }
