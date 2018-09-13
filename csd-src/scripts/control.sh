@@ -97,7 +97,7 @@ init() {
 #    locateJava
 
     # Replace nifi.zookeeper.connect.string placeholder
-    perl -pi -e "s#\#nifi.zookeeper.connect.string={{QUORUM}}#nifi.zookeeper.connect.string=${QUORUM}#" $CONF_DIR/nifi.properties
+    perl -pi -e "s#\#nifi.zookeeper.connect.string=\\{\\{QUORUM\\}\\}#nifi.zookeeper.connect.string=${QUORUM}#" $CONF_DIR/nifi.properties
 
 }
 
