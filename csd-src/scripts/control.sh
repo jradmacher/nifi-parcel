@@ -110,7 +110,7 @@ run() {
     echo "Bootstrap Config File: $BOOTSTRAP_CONF"
     echo
 
-    exec "$JAVA" -cp "${CONF_DIR}":"$NIFI_HOME"/lib/bootstrap/* -Xms12m -Xmx24m -Dorg.apache.nifi.bootstrap.config.file="$BOOTSTRAP_CONF" org.apache.nifi.bootstrap.RunNiFi $@
+    exec "$JAVA_HOME/bin/java" -cp "${CONF_DIR}":"$NIFI_HOME"/lib/bootstrap/* -Xms12m -Xmx24m -Dorg.apache.nifi.bootstrap.config.file="$BOOTSTRAP_CONF" org.apache.nifi.bootstrap.RunNiFi $@
 }
 
 main() {
