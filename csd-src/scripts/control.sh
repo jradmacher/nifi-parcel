@@ -25,7 +25,10 @@ export NIFI_DEFAULT_HOME=/opt/cloudera/parcels/NIFI
 NIFI_HOME=${NIFI_HOME:-$CDH_NIFI_HOME}
 export NIFI_HOME=${NIFI_HOME:-$NIFI_DEFAULT_HOME}
 
-export LIB_DIR=${NIFI_HOME}/lib
+export JAVA="${JAVA_HOME}/bin/java"
+export NIFI_CONF="${CONF_DIR}"
+export BOOTSTRAP_CONF="${NIFI_CONF}/bootstrap.conf";
+export NIFI_PROPERTIES="${NIFI_CONF}/nifi.properties";
 
 PROGNAME=`basename "$0"`
 
@@ -89,32 +92,38 @@ locateJava() {
     fi
 }
 
-init() {
-    # Unlimit the number of file descriptors if possible
-#    unlimitFD
-
-    # Locate the Java VM to execute
-#    locateJava
+update_config() {
 
     # Replace nifi.zookeeper.connect.string placeholder
-    perl -pi -e "s#\#nifi.zookeeper.connect.string=\\{\\{QUORUM\\}\\}#nifi.zookeeper.connect.string=${QUORUM}#" $CONF_DIR/nifi.properties
+    perl -pi -e "s#\#nifi.zookeeper.connect.string=\\{\\{QUORUM\\}\\}#nifi.zookeeper.connect.string=${ZK_QUORUM}#" $NIFI_PROPERTIES
+
+    #TEMP until this config is written by CDH
+    cp "${CONF_DIR}/aux/bootstrap.conf" "${NIFI_CONF}/bootstrap.conf"
+
+    # replace placeholders with real values
+    perl -pi -e "s#java=java#java=${JAVA}#" $BOOTSTRAP_CONF
+    perl -pi -e "s#\#lib.dir=\\./lib#lib.dir=${NIFI_HOME}/lib#" $BOOTSTRAP_CONF
+    perl -pi -e "s#\#conf.dir=\\./conf#conf.dir=${NIFI_CONF}#" $BOOTSTRAP_CONF
 
 }
 
 run() {
-    BOOTSTRAP_CONF="${CONF_DIR}/aux/bootstrap.conf";
     echo
-    echo "Java home: $JAVA_HOME"
-    echo "NiFi home: $NIFI_HOME"
+    echo "Java: ${JAVA}"
+    echo "NiFi home directory: ${NIFI_HOME}"
+    echo "Nifi conf directory: ${NIFI_CONF}"
     echo
-    echo "Bootstrap Config File: $BOOTSTRAP_CONF"
+    echo "Bootstrap config file: ${BOOTSTRAP_CONF}"
+    echo "NIFI properties file: ${NIFI_PROPERTIES}"
+    echo
+    echo "Zookeper quorum: ${ZK_QUORUM}"
     echo
 
-    exec "$JAVA_HOME/bin/java" -cp "${CONF_DIR}":"$NIFI_HOME"/lib/bootstrap/* -Xms12m -Xmx24m -Dorg.apache.nifi.bootstrap.config.file="$BOOTSTRAP_CONF" org.apache.nifi.bootstrap.RunNiFi $@
+    exec "$JAVA" -cp "${CONF_DIR}":"$NIFI_HOME"/lib/bootstrap/* -Xms12m -Xmx24m -Dorg.apache.nifi.bootstrap.config.file="${BOOTSTRAP_CONF}" org.apache.nifi.bootstrap.RunNiFi $@
 }
 
 main() {
-    init
+    update_config
     run "$@"
 }
 
