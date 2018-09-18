@@ -18,7 +18,7 @@ pipeline {
     environment {
         TODO=''
     }
-//    triggers { cron("H 8 * * *") }
+    triggers { cron("H H/4 * * *") }
 
     stages {
         stage('Checkout') {
