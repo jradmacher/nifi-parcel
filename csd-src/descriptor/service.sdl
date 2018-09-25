@@ -32,6 +32,76 @@
   ],
   "parameters": [
     {
+      "name": "nifi.flow.configuration.file",
+      "label": "flow configuration xml",
+      "description": "The location of the flow configuration file (i.e., the file that contains what is currently displayed on the NiFi graph)",
+      "type": "string",
+      "default": "/var/lib/nifi/flow.xml.gz"
+    },
+    {
+      "name": "nifi.flow.configuration.archive.enabled",
+      "label": "automated backup of flow configs",
+      "description": "Specifies whether NiFi creates a backup copy of the flow automatically when the flow is updated.",
+      "type": "boolean",
+      "default": "true"
+    },
+    {
+      "name": "nifi.flow.configuration.archive.dir",
+      "label": "flow configuration archive",
+      "description": "The location of the archive directory where backup copies of the flow.xml are saved.",
+      "type": "string",
+      "default": "/var/lib/nifi/archive/"
+    },
+    {
+      "name": "nifi.flow.configuration.archive.max.time",
+      "label": "max age of automated backups",
+      "description": "The lifespan of archived flow.xml files. NiFi will delete expired archive files when it updates flow.xml if this property is specified.",
+      "type": "string",
+      "default": "30 days"
+    },
+    {
+      "name": "nifi.flow.configuration.archive.max.storage",
+      "label": "max diskspace usage of automated backupse",
+      "description": "The total data size allowed for the archived flow.xml files. NiFi will delete the oldest archive files until the total archived file size becomes less than this configuration value, if this property is specified.",
+      "type": "string",
+      "default": "500 MB"
+    },
+
+
+    {
+      "name": "nifi.database.directory",
+      "label": "nifi.database.directory",
+      "description": "TODO nifi.database.directory",
+      "type": "path",
+      "pathType": "localDataDir",
+      "mode": "0755",
+      "default": "/var/lib/nifi/database_repository"
+    },
+
+
+    {
+      "name": "nifi.flowfile.repository.directory",
+      "label": "nifi.flowfile.repository.directory",
+      "description": "TODO nifi.database.directory",
+      "type": "path",
+      "pathType": "localDataDir",
+      "mode": "0755",
+      "default": "/var/lib/nifi/flowfile_repository"
+    },
+
+
+    {
+      "name": "nifi.templates.directory",
+      "label": "templates directory",
+      "description": "TODO templates directory",
+      "type": "path",
+      "pathType": "localDataDir",
+      "mode": "0755",
+      "default": "/var/lib/nifi/templates"
+    },
+
+
+    {
       "name": "nifi.zookeeper.root.node",
       "label": "ZooKeeper Root",
       "description": "ZNode in ZooKeeper that should be used as a root for this Nifi cluster.",
@@ -62,53 +132,34 @@
       "default": "/var/lib/nifi/work/docs/components"
     },
     {
-      "name": "nifi.flow.configuration.file",
-      "label": "flow configuration xml",
-      "description": "The location of the flow configuration file (i.e., the file that contains what is currently displayed on the NiFi graph)",
-      "type": "string",
-      "default": "/var/lib/nifi/flow.xml.gz"
-    },
-    {
-      "name": "nifi.flow.configuration.archive.dir",
-      "label": "flow configuration archive",
-      "description": "The location of the archive directory where backup copies of the flow.xml are saved.",
-      "type": "string",
-      "default": "/var/lib/nifi/archive/"
-    },
-    {
       "name": "nifi.web.http.host",
       "label": "web hostname",
-      "description": "The HTTP host. It is blank by default.",
+      "description": "The HTTP host. By default this is the placeholder {{FQDN}}, which get's set to hostname.domain",
       "type": "string",
-      "default": ""
+      "default": "{{FQDN}}"
     },
     {
       "name": "nifi.web.http.port",
       "label": "web http port",
       "description": "The HTTP port. The default value is 8080.",
       "type": "port",
-      "default": "8580"
+      "default": "8080"
+    },
+    {
+      "name": "nifi.web.https.host",
+      "label": "web hostname",
+      "description": "The HTTP host. By default this is empty",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "name": "nifi.web.https.port",
+      "label": "web http port",
+      "description": "The HTTP port. The default value is 8080.",
+      "type": "port",
+      "default": ""
     },
 
-    {
-      "name": "nifi.database.directory",
-      "label": "nifi.database.directory",
-      "description": "TODO nifi.database.directory",
-      "type": "path",
-      "pathType": "localDataDir",
-      "mode": "0755",
-      "default": "/var/lib/nifi/database_repository"
-    },
-
-    {
-      "name": "nifi.flowfile.repository.directory",
-      "label": "nifi.flowfile.repository.directory",
-      "description": "TODO nifi.database.directory",
-      "type": "path",
-      "pathType": "localDataDir",
-      "mode": "0755",
-      "default": "/var/lib/nifi/flowfile_repository"
-    },
 
     {
       "name": "num.partitions",
@@ -120,6 +171,13 @@
       "max": 2147483647,
       "softMax": 1000
     }
+    
+    
+    
+    
+    
+    
+    
   ],
   "stopRunner" : {
     "runner" : {
@@ -142,7 +200,7 @@
      "externalLink" : {
        "name" : "nifi_web_ui",
        "label" : "NiFi Node Web UI",
-       "url" : "http://${host}:${nifi.web.http.host}/nifi/"
+       "url" : "http://${nifi.web.http.host}:${nifi.web.http.port}/nifi/"
      },
     "configWriter": {
       "generators": [
@@ -152,63 +210,547 @@
             "excludedParams": [
             ],
             "additionalConfigs" : [
-              {
-                "key" : "#nifi.zookeeper.connect.string",
-                "value" : "{{QUORUM}}"
-              },
-              {
-                "key" : "nifi.nar.library.directory",
-                "value" : "{{NIFI_LIB}}"
-              },
-              {
-                "key" : "nifi.web.war.directory",
-                "value" : "{{NIFI_LIB}}"
-              },
-              {
-                "key" : "nifi.state.management.provider.cluster",
-                "value" : "zk-provider"
-              },
-              {
-                "key" : "nifi.state.management.provider.local",
-                "value" : "local-provider"
-              },
-              {
-                "key" : "nifi.state.management.embedded.zookeeper.start",
-                "value" : "false"
-              },
-              {
-                "key": "nifi.flowfile.repository.implementation",
-                "value": "org.apache.nifi.controller.repository.WriteAheadFlowFileRepository"
-              },
-              {
-                "key": "nifi.flowfile.repository.wal.implementation",
-                "value": "org.apache.nifi.wali.SequentialAccessWriteAheadLog"
-              },
-              {
-                "key": "nifi.flowfile.repository.partitions",
-                "value": "256"
-              },
-              {
-                "key": "nifi.flowfile.repository.checkpoint.interval",
-                "value": "2 mins"
-              },
-              {
-                "key": "nifi.flowfile.repository.always.sync",
-                "value": "false"
-              },
-              {
-                "key": "nifi.sensitive.props.algorithm",
-                "value": "PBEWITHMD5AND256BITAES-CBC-OPENSSL"
-              },
-              {
-                "key": "nifi.sensitive.props.provider",
-                "value": "BC"
-              }
+                {
+                    "key" : "nifi.flow.configuration.archive.max.count",
+                    "value" : ""
+                },
+                {
+                    "key" : "nifi.flowcontroller.autoResumeState",
+                    "value" : "true"
+                },
+                {
+                    "key" : "nifi.flowcontroller.graceful.shutdown.period",
+                    "value" : "10 sec"
+                },
+                {
+                    "key" : "nifi.flowservice.writedelay.interval",
+                    "value" : "500 ms"
+                },
+                {
+                    "key" : "nifi.administrative.yield.duration",
+                    "value" : "30 sec"
+                },
+                {
+                    "key" : "nifi.bored.yield.duration",
+                    "value" : "10 millis"
+                },
+                {
+                    "key" : "nifi.queue.backpressure.count",
+                    "value" : "10000"
+                },
+                {
+                    "key" : "nifi.queue.backpressure.size",
+                    "value" : "1 GB"
+                },
+
+
+                {
+                    "key" : "nifi.state.management.configuration.file",
+                    "value" : "./conf/state-management.xml"
+                },
+                {
+                    "key" : "nifi.state.management.provider.local",
+                    "value" : "local-provider"
+                },
+                {
+                    "key" : "nifi.state.management.provider.cluster",
+                    "value" : "zk-provider"
+                },
+                {
+                    "key" : "nifi.state.management.embedded.zookeeper.start",
+                    "value" : "false"
+                },
+
+
+                {
+                    "key" : "nifi.h2.url.append",
+                    "value" : ";LOCK_TIMEOUT=25000;WRITE_DELAY=0;AUTO_SERVER=FALSE"
+                },
+
+
+                {
+                    "key": "nifi.flowfile.repository.implementation",
+                    "value": "org.apache.nifi.controller.repository.WriteAheadFlowFileRepository"
+                },
+                {
+                    "key": "nifi.flowfile.repository.wal.implementation",
+                    "value": "org.apache.nifi.wali.SequentialAccessWriteAheadLog"
+                },
+                {
+                    "key": "nifi.flowfile.repository.partitions",
+                    "value": "256"
+                },
+                {
+                    "key": "nifi.flowfile.repository.checkpoint.interval",
+                    "value": "2 mins"
+                },
+                {
+                    "key": "nifi.flowfile.repository.always.sync",
+                    "value": "false"
+                },
+
+
+                {
+                    "key": "nifi.swap.manager.implementation",
+                    "value": "org.apache.nifi.controller.FileSystemSwapManager"
+                },
+                {
+                    "key": "nifi.queue.swap.threshold",
+                    "value": "20000"
+                },
+                {
+                    "key": "nifi.swap.in.period",
+                    "value": "5 sec"
+                },
+                {
+                    "key": "nifi.swap.in.threads",
+                    "value": "1"
+                },
+                {
+                    "key": "nifi.swap.out.period",
+                    "value": "5 sec"
+                },
+                {
+                    "key": "nifi.swap.out.threads",
+                    "value": "4"
+                },
+                {
+                    "key": "nifi.content.repository.implementation",
+                    "value": "org.apache.nifi.controller.repository.FileSystemRepository"
+                },
+                {
+                    "key": "nifi.content.claim.max.appendable.size",
+                    "value": "1 MB"
+                },
+                {
+                    "key": "nifi.content.claim.max.flow.files",
+                    "value": "100"
+                },
+                {
+                    "key": "nifi.content.repository.directory.default",
+                    "value": "/var/lib/nifi/content_repository"
+                },
+                {
+                    "key": "nifi.content.repository.archive.max.retention.period",
+                    "value": "12 hours"
+                },
+                {
+                    "key": "nifi.content.repository.archive.max.usage.percentage",
+                    "value": "50%"
+                },
+                {
+                    "key": "nifi.content.repository.archive.enabled",
+                    "value": "true"
+                },
+                {
+                    "key": "nifi.content.repository.always.sync",
+                    "value": "false"
+                },
+                {
+                    "key": "nifi.content.viewer.url",
+                    "value": "../nifi-content-viewer/"
+                },
+                {
+                    "key": "nifi.provenance.repository.implementation",
+                    "value": "org.apache.nifi.provenance.PersistentProvenanceRepository"
+                },
+                {
+                    "key": "nifi.provenance.repository.debug.frequency",
+                    "value": "1_000_000"
+                },
+                {
+                    "key": "nifi.provenance.repository.encryption.key.provider.implementation",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.provenance.repository.encryption.key.provider.location",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.provenance.repository.encryption.key.id",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.provenance.repository.encryption.key",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.provenance.repository.directory.default",
+                    "value": "/var/lib/nifi/provenance_repository"
+                },
+                {
+                    "key": "nifi.provenance.repository.max.storage.time",
+                    "value": "24 hours"
+                },
+                {
+                    "key": "nifi.provenance.repository.max.storage.size",
+                    "value": "1 GB"
+                },
+                {
+                    "key": "nifi.provenance.repository.rollover.time",
+                    "value": "30 secs"
+                },
+                {
+                    "key": "nifi.provenance.repository.rollover.size",
+                    "value": "100 MB"
+                },
+                {
+                    "key": "nifi.provenance.repository.query.threads",
+                    "value": "2"
+                },
+                {
+                    "key": "nifi.provenance.repository.index.threads",
+                    "value": "2"
+                },
+                {
+                    "key": "nifi.provenance.repository.compress.on.rollover",
+                    "value": "true"
+                },
+                {
+                    "key": "nifi.provenance.repository.always.sync",
+                    "value": "false"
+                },
+                {
+                    "key": "nifi.provenance.repository.journal.count",
+                    "value": "16"
+                },
+                {
+                    "key": "nifi.provenance.repository.indexed.fields",
+                    "value": "EventType, FlowFileUUID, Filename, ProcessorID, Relationship"
+                },
+                {
+                    "key": "nifi.provenance.repository.indexed.attributes",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.provenance.repository.index.shard.size",
+                    "value": "500 MB"
+                },
+                {
+                    "key": "nifi.provenance.repository.max.attribute.length",
+                    "value": "65536"
+                },
+                {
+                    "key": "nifi.provenance.repository.concurrent.merge.threads",
+                    "value": "2"
+                },
+                {
+                    "key": "nifi.provenance.repository.warm.cache.frequency",
+                    "value": "1 hour"
+                },
+                {
+                    "key": "nifi.provenance.repository.buffer.size",
+                    "value": "100000"
+                },
+                {
+                    "key": "nifi.components.status.repository.implementation",
+                    "value": "org.apache.nifi.controller.status.history.VolatileComponentStatusRepository"
+                },
+                {
+                    "key": "nifi.components.status.repository.buffer.size",
+                    "value": "1440"
+                },
+                {
+                    "key": "nifi.components.status.snapshot.frequency",
+                    "value": "1 min"
+                },
+                {
+                    "key": "nifi.remote.input.host",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.remote.input.secure",
+                    "value": "false"
+                },
+                {
+                    "key": "nifi.remote.input.socket.port",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.remote.input.http.enabled",
+                    "value": "true"
+                },
+                {
+                    "key": "nifi.remote.input.http.transaction.ttl",
+                    "value": "30 sec"
+                },
+                {
+                    "key": "nifi.remote.contents.cache.expiration",
+                    "value": "30 secs"
+                },
+                {
+                    "key": "nifi.web.war.directory",
+                    "value": "{{NIFI_LIB}}"
+                },
+                {
+                    "key": "nifi.web.http.network.interface.default",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.web.https.host",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.web.https.port",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.web.https.network.interface.default",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.web.jetty.working.directory",
+                    "value": "/var/lib/nifi/work/jetty"
+                },
+                {
+                    "key": "nifi.web.jetty.threads",
+                    "value": "200"
+                },
+                {
+                    "key": "nifi.web.max.header.size",
+                    "value": "16 KB"
+                },
+                {
+                    "key": "nifi.web.proxy.context.path",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.web.proxy.host",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.sensitive.props.key",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.sensitive.props.key.protected",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.sensitive.props.algorithm",
+                    "value": "PBEWITHMD5AND256BITAES-CBC-OPENSSL"
+                },
+                {
+                    "key": "nifi.sensitive.props.provider",
+                    "value": "BC"
+                },
+                {
+                    "key": "nifi.sensitive.props.additional.keys",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.security.keystore",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.security.keystoreType",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.security.keystorePasswd",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.security.keyPasswd",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.security.truststore",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.security.truststoreType",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.security.truststorePasswd",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.security.needClientAuth",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.security.user.authorizer",
+                    "value": "managed-authorizer"
+                },
+                {
+                    "key": "nifi.security.user.login.identity.provider",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.security.ocsp.responder.url",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.security.ocsp.responder.certificate",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.security.user.oidc.discovery.url",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.security.user.oidc.connect.timeout",
+                    "value": "5 secs"
+                },
+                {
+                    "key": "nifi.security.user.oidc.read.timeout",
+                    "value": "5 secs"
+                },
+                {
+                    "key": "nifi.security.user.oidc.client.id",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.security.user.oidc.client.secret",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.security.user.oidc.preferred.jwsalgorithm",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.security.user.knox.url",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.security.user.knox.publicKey",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.security.user.knox.cookieName",
+                    "value": "hadoop-jwt"
+                },
+                {
+                    "key": "nifi.security.user.knox.audiences",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.cluster.protocol.heartbeat.interval",
+                    "value": "5 sec"
+                },
+                {
+                    "key": "nifi.cluster.protocol.is.secure",
+                    "value": "false"
+                },
+                {
+                    "key": "nifi.cluster.node.address",
+                    "value": "{{FQDN}}"
+                },
+                {
+                    "key": "nifi.cluster.node.protocol.port",
+                    "value": "1089"
+                },
+                {
+                    "key": "nifi.cluster.node.protocol.threads",
+                    "value": "10"
+                },
+                {
+                    "key": "nifi.cluster.node.protocol.max.threads",
+                    "value": "50"
+                },
+                {
+                    "key": "nifi.cluster.node.event.history.size",
+                    "value": "25"
+                },
+                {
+                    "key": "nifi.cluster.node.connection.timeout",
+                    "value": "5 sec"
+                },
+                {
+                    "key": "nifi.cluster.node.read.timeout",
+                    "value": "5 sec"
+                },
+                {
+                    "key": "nifi.cluster.node.max.concurrent.requests",
+                    "value": "100"
+                },
+                {
+                    "key": "nifi.cluster.firewall.file",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.cluster.flow.election.max.wait.time",
+                    "value": "5 mins"
+                },
+                {
+                    "key": "nifi.cluster.flow.election.max.candidates",
+                    "value": ""
+                },
+                {
+                    "key" : "#nifi.zookeeper.connect.string",
+                    "value" : "{{QUORUM}}"
+                },
+                {
+                    "key": "nifi.zookeeper.connect.timeout",
+                    "value": "3 secs"
+                },
+                {
+                    "key": "nifi.zookeeper.session.timeout",
+                    "value": "3 secs"
+                },
+                {
+                    "key": "nifi.zookeeper.auth.type",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.zookeeper.kerberos.removeHostFromPrincipal",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.zookeeper.kerberos.removeRealmFromPrincipal",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.kerberos.krb5.file",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.kerberos.service.principal",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.kerberos.service.keytab.location",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.kerberos.spnego.principal",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.kerberos.spnego.keytab.location",
+                    "value": ""
+                },
+                {
+                    "key": "nifi.kerberos.spnego.authentication.expiration",
+                    "value": "12 hours"
+                },
+                {
+                    "key" : "nifi.nar.library.directory",
+                    "value" : "{{NIFI_LIB}}"
+                },
+                {
+                    "key": "nifi.ui.autorefresh.interval",
+                    "value": "30 sec"
+                },
+                {
+                    "key": "nifi.ui.banner.text",
+                    "value": ""
+                }
 
             ]
         }
       ],
       "auxConfigGenerators" : [
+        {
+          "filename" : "conf/bootstrap-notification-services.xml",
+          "sourceFilename" : "aux/bootstrap-notification-services.xml"
+        },
+        {
+          "filename" : "conf/state-management.xml",
+          "sourceFilename" : "aux/state-management.xml"
+        },
         {
           "filename" : "conf/logback.xml",
           "sourceFilename" : "aux/logback.xml"

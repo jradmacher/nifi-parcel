@@ -29,7 +29,9 @@ export JAVA="${JAVA_HOME}/bin/java"
 export NIFI_CONF="${CONF_DIR}/conf"
 export BOOTSTRAP_CONF="${NIFI_CONF}/bootstrap.conf";
 export NIFI_PROPERTIES="${NIFI_CONF}/nifi.properties";
+export NIFI_STATE_MANAGEMENT="${NIFI_CONF}/state-management.xml";
 export NIFI_LIB="${NIFI_HOME}/lib"
+export FQDN=$(hostname -f)
 
 PROGNAME=`basename "$0"`
 
@@ -97,7 +99,9 @@ update_config() {
 
     # Replace nifi.zookeeper.connect.string placeholder
     perl -pi -e "s#\#nifi.zookeeper.connect.string=\\{\\{QUORUM\\}\\}#nifi.zookeeper.connect.string=${ZK_QUORUM}#" $NIFI_PROPERTIES
+    perl -pi -e "s#\\{\\{QUORUM\\}\\}#${ZK_QUORUM}#" $NIFI_STATE_MANAGEMENT
     perl -pi -e "s#\\{\\{NIFI_LIB\\}\\}#${NIFI_LIB}#" $NIFI_PROPERTIES
+    perl -pi -e "s#\\{\\{FQDN\\}\\}#${FQDN}#" $NIFI_PROPERTIES
 
     #TEMP until this config is written by CDH
     cp "${CONF_DIR}/aux/bootstrap.conf" "$BOOTSTRAP_CONF"
