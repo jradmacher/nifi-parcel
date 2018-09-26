@@ -55,7 +55,18 @@ $ sudo service cloudera-scm-server restart
 ```
 
 ## Pending items
-- Currently `NiFi` runs under the `root` user
-- Expose config options under Cloudera Manager
-  - Conf folder from parcels is used, this needs to be migrated to ConfigWriter
+- simplify install
+  - Provide precompiled CSD
+  - Provide parcel repo
 - Expose metrics from NiFi
+- Allow reading log files in CDH
+- https config
+  - certificate Management
+- Login
+  - this requires https
+- Fix *WebUI* link in CDH
+
+## Finished items
+- "Currently `NiFi` runs under the `root` user" - done. User is *nifi*.
+- Expose config options under Cloudera Manager - done.
+  - Conf folder from parcels is used, this needs to be migrated to ConfigWriter - done for all basic settings (
