@@ -65,8 +65,10 @@ $ sudo service cloudera-scm-server restart
 - Login
   - this requires https
 - Fix *WebUI* link in CDH
+- Parcel building in Jenkins
+  - Use Nifi releases
 
 ## Finished items
 - "Currently `NiFi` runs under the `root` user" - done. User is *nifi*.
 - Expose config options under Cloudera Manager - done.
-  - Conf folder from parcels is used, this needs to be migrated to ConfigWriter - done for all basic settings (
+  - Conf folder from parcels is used, this needs to be migrated to ConfigWriter - done for all basic settings
