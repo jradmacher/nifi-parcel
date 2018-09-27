@@ -35,7 +35,9 @@
       "name": "nifi.flow.configuration.file",
       "label": "flow configuration xml",
       "description": "The location of the flow configuration file (i.e., the file that contains what is currently displayed on the NiFi graph)",
-      "type": "string",
+      "type": "path",
+      "pathType": "localDataFile",
+      "mode": "0640",
       "default": "/var/lib/nifi/flow.xml.gz"
     },
     {
@@ -49,7 +51,9 @@
       "name": "nifi.flow.configuration.archive.dir",
       "label": "flow configuration archive",
       "description": "The location of the archive directory where backup copies of the flow.xml are saved.",
-      "type": "string",
+      "type": "path",
+      "pathType": "localDataDir",
+      "mode": "0750",
       "default": "/var/lib/nifi/archive/"
     },
     {
@@ -121,7 +125,9 @@
       "name": "nifi.nar.working.directory",
       "label": "nar work directory",
       "description": "The location of the nar working directory.",
-      "type": "string",
+      "type": "path",
+      "pathType": "localDataDir",
+      "mode": "0755",
       "default": "/var/lib/nifi/work/nar/"
     },
     {
@@ -139,6 +145,13 @@
       "default": "{{FQDN}}"
     },
     {
+      "name": "nifi.web.https.host",
+      "label": "web hostname",
+      "description": "The HTTP host. By default this is the placeholder {{FQDN}}, which get's set to hostname.domain",
+      "type": "string",
+      "default": "{{FQDN}}"
+    },
+    {
       "name": "nifi.web.http.port",
       "label": "web http port",
       "description": "The HTTP port. The default value is 8080.",
@@ -146,20 +159,77 @@
       "default": "8080"
     },
     {
-      "name": "nifi.web.https.host",
-      "label": "web hostname",
-      "description": "The HTTP host. By default this is empty",
-      "type": "string",
-      "default": ""
-    },
-    {
       "name": "nifi.web.https.port",
-      "label": "web http port",
-      "description": "The HTTP port. The default value is 8080.",
+      "label": "web https port, choose between http and https",
+      "description": "The HTTP port. The default value is empty.",
       "type": "port",
       "default": ""
     },
-
+    {
+        "name": "nifi.security.keystore",
+        "label": "keystore file with path",
+        "description": "Filename of the Keystore that contains the server’s private key.",
+        "type": "path",
+        "pathType": "localDataFile",
+        "mode": "0600",
+        "default": "/var/lib/nifi/server_keystore.jks"
+    },
+    {
+        "name": "nifi.security.keystoreType",
+        "label": "keystore type",
+        "description": "The type of the Keystore. Must be either PKCS12 or JKS. JKS is the preferred type, PKCS12 files will be loaded with BouncyCastle provider.",
+        "type": "string_enum",
+        "validValues": ["JKS","PKCS12"],
+        "default": "JKS"
+    },
+    {
+        "name": "nifi.security.keystorePasswd",
+        "label": "Keystore password",
+        "description": "The password for the Keystore.",
+        "type": "password",
+        "sensitive": "true",
+        "default": ""
+    },
+    {
+        "name": "nifi.security.keyPasswd",
+        "label": "private key password",
+        "description": "The password for the certificate in the Keystore. If not set, the value of nifi.security.keystorePasswd will be used.",
+        "type": "password",
+        "sensitive": "true",
+        "default": ""
+    },
+    {
+        "name": "nifi.security.truststore",
+        "label": "truststore file with path",
+        "description": "Filename of the Truststore that will be used to authorize those connecting to NiFi. A secured instance with no Truststore will refuse all incoming connections.",
+        "type": "path",
+        "pathType": "localDataFile",
+        "mode": "0600",
+        "default": "/var/lib/nifi/server_truststore.jks"
+    },
+    {
+        "name": "nifi.security.truststoreType",
+        "label": "truststore type",
+        "description": "The type of the Truststore. Must be either PKCS12 or JKS. JKS is the preferred type, PKCS12 files will be loaded with BouncyCastle provider.",
+        "type": "string_enum",
+        "validValues": ["JKS","PKCS12"],
+        "default": "JKS"
+    },
+    {
+        "name": "nifi.security.truststorePasswd",
+        "label": "Truststore password",
+        "description": "The truststore password",
+        "type": "password",
+        "sensitive": "true",
+        "default": ""
+    },
+    {
+        "name": "nifi.security.needClientAuth",
+        "label": "need client auth",
+        "description": "nifi.security.needClientAuth",
+        "type": "boolean",
+        "value": "false"
+    },
 
     {
       "name": "num.partitions",
@@ -171,7 +241,6 @@
       "max": 2147483647,
       "softMax": 1000
     }
-    
     
     
     
@@ -536,38 +605,6 @@
                 },
                 {
                     "key": "nifi.sensitive.props.additional.keys",
-                    "value": ""
-                },
-                {
-                    "key": "nifi.security.keystore",
-                    "value": ""
-                },
-                {
-                    "key": "nifi.security.keystoreType",
-                    "value": ""
-                },
-                {
-                    "key": "nifi.security.keystorePasswd",
-                    "value": ""
-                },
-                {
-                    "key": "nifi.security.keyPasswd",
-                    "value": ""
-                },
-                {
-                    "key": "nifi.security.truststore",
-                    "value": ""
-                },
-                {
-                    "key": "nifi.security.truststoreType",
-                    "value": ""
-                },
-                {
-                    "key": "nifi.security.truststorePasswd",
-                    "value": ""
-                },
-                {
-                    "key": "nifi.security.needClientAuth",
                     "value": ""
                 },
                 {
